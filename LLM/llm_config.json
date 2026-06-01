@@ -1,0 +1,14 @@
+{
+  "deepseek": {
+    "provider": "deepseek",
+    "api_key": "sk-ca773d0ee8c248ac8b369d9a746cbf13",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-chat",
+    "enabled": true,
+    "is_custom": false,
+    "context_window": 64000,
+    "max_output_tokens": 8192,
+    "enable_thinking": false,
+    "thinking_budget": 8000
+  }
+}
