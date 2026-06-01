@@ -246,7 +246,7 @@ def generate(
     fig.update_xaxes(showgrid=False, linecolor="#D9D9D9")
     fig.update_yaxes(showgrid=True, gridcolor="#E6E9EF", zeroline=False)
 
-    chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+    chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
     html = _build_html(title, "stacked_bar", "plotly", _DATA_FMT, _DESC, chart_html)
 
 

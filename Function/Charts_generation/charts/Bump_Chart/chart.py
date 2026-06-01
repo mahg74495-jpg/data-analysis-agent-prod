@@ -367,7 +367,7 @@ def generate(
             range=[max_rank + 0.5, 0.5]
         )
 
-        chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+        chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
         if not chart_html or len(chart_html) < 100:
             return ChartResult(warnings=["图表生成失败"])
 

@@ -176,7 +176,7 @@ def generate(
             hovertemplate="<b>%{x}</b><br>频次: %{y}<extra></extra>"
         )
 
-        chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+        chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
         html = _build_html(title, "histogram_chart", "plotly", _DATA_FMT, _DESC, chart_html)
 
         meta = {
@@ -273,7 +273,7 @@ def generate(
             )
         )
 
-        chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+        chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
         html = _build_html(title, "histogram_chart", "plotly", _DATA_FMT, _DESC, chart_html)
 
         meta = {

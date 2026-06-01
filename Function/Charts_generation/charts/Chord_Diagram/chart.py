@@ -144,7 +144,7 @@ def _build_chord_html(matrix: pd.DataFrame, title: str, highlight_node: Optional
 <head>
     <meta charset="UTF-8">
     <title>{title}</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: "Microsoft YaHei", sans-serif; background: #fafafa; padding: 40px; }}

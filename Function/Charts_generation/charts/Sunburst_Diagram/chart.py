@@ -463,7 +463,7 @@ def generate(
 
     chart_html = f"""<div>
     <script>window.PlotlyConfig = {{MathJaxConfig: 'local'}};</script>
-    <script charset="utf-8" src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="/static/vendor/plotly.min.js"></script>
     <div id="{fig_id}" class="plotly-graph-div" style="height:500px; width:100%;"></div>
     <script>
         (function() {{

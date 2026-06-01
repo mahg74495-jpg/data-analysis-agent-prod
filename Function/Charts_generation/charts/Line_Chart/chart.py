@@ -234,7 +234,7 @@ def generate(
                             borderwidth=0, font=dict(size=11)),
                 hovermode="x unified" if not is_roc_like else "closest",
             )
-            chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+            chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
             html = _build_html(title, "line_chart", "plotly", _DATA_FMT, _DESC, chart_html)
             return ChartResult(html=html, spec={}, warnings=warnings,
                                meta={"chart_id": "line_chart", "n_rows": len(df),
@@ -349,7 +349,7 @@ def generate(
         showline=False,
         zeroline=False
     )
-    chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+    chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
     html = _build_html(title, "line_chart", "plotly", _DATA_FMT, _DESC, chart_html)
 
     return ChartResult(

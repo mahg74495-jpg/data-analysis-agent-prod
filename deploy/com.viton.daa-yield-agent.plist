@@ -8,10 +8,8 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/viton/Data-Analysis-Agent/.venv/bin/gunicorn</string>
-        <string>--config</string>
-        <string>/Users/viton/Data-Analysis-Agent/gunicorn_conf.py</string>
-        <string>api:create_app()</string>
+        <string>/bin/bash</string>
+        <string>/Users/viton/Data-Analysis-Agent/deploy/start_daa.sh</string>
     </array>
 
     <key>WorkingDirectory</key>

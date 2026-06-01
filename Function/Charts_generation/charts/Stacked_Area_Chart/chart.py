@@ -338,7 +338,7 @@ def generate(df: pd.DataFrame, mapping: dict = None, options: dict = None) -> Ch
         legend=dict(orientation="v", yanchor="top", y=0.99, xanchor="left", x=0.01)
     )
 
-    chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+    chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>

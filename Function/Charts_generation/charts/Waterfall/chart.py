@@ -192,7 +192,7 @@ def generate(
         fig.update_yaxes(zeroline=True, zerolinecolor="#dddddd")
 
         chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
-        chart_html = '<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>' + chart_html
+        chart_html = '<script src="/static/vendor/plotly.min.js"></script>' + chart_html
 
         if not chart_html or len(chart_html) < 100:
             return ChartResult(warnings=["图表生成失败"])

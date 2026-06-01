@@ -129,7 +129,7 @@ def _build_sparkline_html(label: str, y_vals: list, trend_up: bool) -> str:
         hovermode="x unified"
     )
     
-    return pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+    return pio.to_html(fig, full_html=False, include_plotlyjs=False)
 
 
 def _build_html(title: str, chart_name: str, library: str,

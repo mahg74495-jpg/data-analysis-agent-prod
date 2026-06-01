@@ -54,6 +54,18 @@ def serve_chart(chart_id: str):
     html = chart_store.get(chart_id)
     if not html:
         return "Chart not found", 404
+    # ── 离线部署：注入本地 plotly.min.js，移除 CDN script 标签 ──
+    import re
+    # 移除所有 CDN plotly/d3 引用
+    html = re.sub(
+        r'<script[^>]*src=["\']https?://(?:cdn\.plot\.ly|cdn\.jsdelivr|d3js\.org|unpkg\.com)[^>]*></script>',
+        '', html)
+    # 在 </head> 前注入本地 plotly
+    local_plotly = '<script src="/static/vendor/plotly.min.js"></script>'
+    if '</head>' in html:
+        html = html.replace('</head>', local_plotly + '\n</head>')
+    else:
+        html = local_plotly + html
     return Response(html, mimetype="text/html")
 
 

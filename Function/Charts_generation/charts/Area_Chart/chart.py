@@ -310,11 +310,11 @@ def generate(
             )
         )
         
-        chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+        chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
         if not chart_html or len(chart_html) < 100:
             fig_empty = go.Figure()
             fig_empty.add_annotation(text="无有效数据", showarrow=False)
-            chart_html = pio.to_html(fig_empty, full_html=False, include_plotlyjs="cdn")
+            chart_html = pio.to_html(fig_empty, full_html=False, include_plotlyjs=False)
             warnings.append("图表数据为空")
     except Exception as e:
         warnings.append(f"图表生成失败: {e}")

@@ -251,7 +251,7 @@ def generate(
         hovermode="closest"
     )
 
-    chart_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
+    chart_html = pio.to_html(fig, full_html=False, include_plotlyjs=False)
     html = _build_html(title, "waffle", "plotly", _DATA_FMT, _DESC, chart_html)
 
     meta = {
