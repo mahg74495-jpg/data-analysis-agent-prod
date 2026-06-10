@@ -352,7 +352,7 @@ class BusinessAgent(DataToolsMixin, ExportToolsMixin):
         _consecutive_errors = 0
         _run_start = time.monotonic()
         _MAX_RUN_SECONDS = 300  # 5-minute hard ceiling
-        _MAX_CONSECUTIVE_ERRORS = 3
+        _MAX_CONSECUTIVE_ERRORS = 6  # 给LLM更多自我纠正机会（10M行大表SQL容易首次写错）
 
         _PROPOSE_FLOW_CMDS = ("ppt", "ppt_revise", "export", "excel_revise",
                               "report", "report_revise", "dashboard", "dashboard_revise")

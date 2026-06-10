@@ -21,4 +21,4 @@ fi
 cd /Users/viton/Data-Analysis-Agent
 exec /Users/viton/Data-Analysis-Agent/.venv/bin/gunicorn \
     --config /Users/viton/Data-Analysis-Agent/gunicorn_conf.py \
-    api:create_app\(\)
+    wsgi:app

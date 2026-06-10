@@ -1,9 +1,9 @@
 {
   "deepseek": {
     "provider": "deepseek",
-    "api_key": "sk-ca773d0ee8c248ac8b369d9a746cbf13",
+    "api_key": "your-deepseek-api-key-here",
     "base_url": "https://api.deepseek.com",
-    "model": "deepseek-chat",
+    "model": "deepseek-v4-pro",
     "enabled": true,
     "is_custom": false,
     "context_window": 64000,

@@ -5,7 +5,7 @@ import os
 bind = "0.0.0.0:5001"
 
 # Worker配置 (ARM64 Mac 16GB)
-workers = 3                    # 2个处理请求 + 1个备用
+workers = 1                    # 16GB ARM64 Mac，避免OOM
 worker_class = "sync"          # 同步worker，Agent是CPU密集型
 threads = 2                    # 每个worker 2个线程
 timeout = 300                  # 5分钟超时（大查询需要时间）
@@ -14,7 +14,7 @@ graceful_timeout = 30          # 优雅关闭30秒
 # 进程管理
 max_requests = 50              # 每个worker处理50个请求后重启（防内存泄漏）
 max_requests_jitter = 10       # 随机化重启时间
-preload_app = True             # 预加载应用（节省内存）
+preload_app = False            # macOS fork不安全，禁用预加载
 
 # 日志
 accesslog = os.path.expanduser("~/.hermes/logs/daa_access.log")

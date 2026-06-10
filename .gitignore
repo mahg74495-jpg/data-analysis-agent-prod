@@ -27,3 +27,10 @@ Thumbs.db
 # 日志
 outputs/Log/
 *.log
+
+# 输出文件（本地生成）
+outputs/
+analysis_output_10m/
+
+# API密钥（本地配置）
+LLM/llm_config.json
