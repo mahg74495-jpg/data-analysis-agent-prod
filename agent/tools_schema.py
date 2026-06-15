@@ -163,8 +163,8 @@ AGENT_TOOLS = [
                             "A concise description of what the user wants to visualize. "
                             "Include chart type hints if the user mentioned one, the business question, "
                             "and any dimension/metric keywords. "
-                            "Examples: '各月销售额趋势', '产品类别占比饼图', '两个时间点的排名变化', "
-                            "'地区销售热力图', 'KPI达成率对比'."
+                            "Examples: '各工厂良率趋势', '缺陷类型占比饼图', '制程良率对比', "
+                            "'良率热力图', '设备良率排名'."
                         ),
                     },
                     "available_columns": {

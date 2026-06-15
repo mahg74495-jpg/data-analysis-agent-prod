@@ -9,6 +9,13 @@ os.environ['PYTHONUNBUFFERED'] = '1'
 from log_setup import setup_logging
 setup_logging(level=20)
 
+# 离线部署：pyecharts CDN → 本地 vendor
+try:
+    from pyecharts.globals import CurrentConfig
+    CurrentConfig.ONLINE_HOST = '/static/vendor/'
+except ImportError:
+    pass
+
 from api import create_app
 app = create_app()
 print('DAA READY', flush=True)

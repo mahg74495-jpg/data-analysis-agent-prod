@@ -51,7 +51,44 @@ let _streamReader = null;   // current SSE ReadableStreamDefaultReader
   await loadBuiltinProviders();
   await loadSavedList();
   await loadDatasourceConfigs();
+  // 启动心跳：每 5 分钟刷新 session 活跃时间 + 检查数据源连接
+  startHeartbeat();
 })();
+
+// ── Heartbeat ──────────────────────────────────────────────────────
+let _heartbeatTimer = null;
+
+function startHeartbeat() {
+  if (_heartbeatTimer) clearInterval(_heartbeatTimer);
+  // 每 5 分钟执行一次
+  _heartbeatTimer = setInterval(async () => {
+    if (!SID) return;
+    try {
+      // 1. 刷新 session 活跃时间，防止被 TTL 清理
+      await fetch(`/api/session/${SID}/keepalive`, { method: 'POST' });
+      // 2. 检查数据源连接状态
+      const r = await fetch(`/api/session/${SID}/datasource/health`);
+      const d = await r.json();
+      if (d.connected === false && srcConnected) {
+        // 连接已断开 — 使用现有的 setSrc 更新 UI
+        setSrc(null, 'sidebar.hint.noconn', false);
+        toast(t('toast.disconnected'), 'err');
+      } else if (d.connected === true && !srcConnected) {
+        // 连接恢复 — 使用现有的 setSrc 更新 UI
+        setSrc(d.source_name, srcHintKey, true);
+      }
+    } catch (_) {
+      // 网络错误静默忽略
+    }
+  }, 5 * 60 * 1000);
+}
+
+function stopHeartbeat() {
+  if (_heartbeatTimer) {
+    clearInterval(_heartbeatTimer);
+    _heartbeatTimer = null;
+  }
+}
 
 // ── Language change handler ────────────────────────────────────────
 document.addEventListener('langchange', () => {

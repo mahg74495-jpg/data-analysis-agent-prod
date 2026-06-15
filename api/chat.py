@@ -2,6 +2,7 @@
 import json
 import logging
 import uuid
+from datetime import datetime
 
 from flask import Blueprint, request, Response, jsonify
 
@@ -39,6 +40,16 @@ def _build_agent(sess) -> BusinessAgent:
 def new_session():
     sess = session_manager.create()
     return jsonify({"session_id": sess.session_id})
+
+
+@bp.post("/api/session/<sid>/keepalive")
+def session_keepalive(sid: str):
+    """Keep the session alive — refreshes last_accessed timestamp."""
+    sess = session_manager.get(sid)
+    if sess:
+        sess.last_accessed = datetime.now()
+        return jsonify({"ok": True})
+    return jsonify({"ok": False, "error": "session not found"}), 404
 
 
 @bp.post("/api/session/<sid>/clear")

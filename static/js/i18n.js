@@ -73,11 +73,11 @@
       'modal.db.name_ph': '例如：生产数据库',
       'modal.db.conn_label': '连接字符串',
       'modal.db.conn_req': '必填',
-      'modal.db.hint': '支持 MySQL、PostgreSQL、SQLite、SQL Server 等 SQLAlchemy 数据库',
+      'modal.db.hint': '支持 MySQL、PostgreSQL、SQLite、SQL Server、ClickHouse 等 SQLAlchemy 数据库',
       // ── GSheets modal ────────────────────────────────────────────
       'modal.gsheets.title': '📊 连接 Google Sheets',
       'modal.gsheets.name_label': '显示名称（可选）',
-      'modal.gsheets.name_ph': '例如：销售数据表',
+      'modal.gsheets.name_ph': '例如：良率数据表',
       'modal.gsheets.sheet_label': '电子表格 URL 或 ID',
       'modal.gsheets.sheet_ph': 'https://docs.google.com/spreadsheets/d/… 或表格 ID',
       'modal.gsheets.creds_label': '服务账号 JSON',

@@ -1,23 +1,19 @@
 # =============================================================================
-# Loose declarations — describes what we depend on by name and minimum version.
-# Use this for development. For production / first-time installs, prefer:
-#     pip install -r requirements.lock.txt
-# which pins every transitive dependency to a known-good version.
+# Data Analysis Agent — 半导体制造版 依赖清单
 # =============================================================================
 #
-# Regenerate the lock after upgrading anything here:
-#     pip install -r requirements.txt --upgrade
-#     pip freeze > requirements.lock.txt
+# 离线部署步骤：
+#   1. 在能联网的环境执行：
+#      pip download -r requirements.txt -d ./offline-packages/
+#   2. 将 offline-packages/ 和本项目拷贝到内网服务器
+#   3. 在内网服务器执行：
+#      pip install --no-index --find-links ./offline-packages/ -r requirements.txt
 # =============================================================================
 
 # Web
 flask>=2.0.0
 flask-cors>=3.0.0
 gunicorn>=20.1.0
-pyecharts>=2.0.0
-selenium>=4.0.0
-snapshot-selenium>=0.0.2
-scipy>=1.7.0
 
 # Data
 duckdb>=1.0.0
@@ -26,19 +22,18 @@ numpy>=1.21.0
 openpyxl>=3.1.0
 xlrd>=2.0.1
 python-calamine>=0.1.0
-gspread>=6.0.0
 
-# Viz
+# Viz (charts)
 plotly>=5.0.0
-matplotlib>=3.4.0
+pyecharts>=2.0.0
+scipy>=1.7.0
 
 # HTTP / LLM
 requests>=2.26.0
 openai>=1.0.0
-python-dotenv>=1.0.0
 httpx>=0.27.0
 
-# Export (Output module)
+# Export (PPT / Word / Excel)
 python-docx>=0.8.11
 python-pptx>=0.6.21
 lxml>=4.6.0
@@ -47,11 +42,8 @@ lxml>=4.6.0
 statsmodels>=0.14.0
 pmdarima>=2.0.0
 
-# Database (agent)
+# Database (SQLAlchemy + drivers)
 sqlalchemy>=2.0.0
-pymysql>=1.0.0        # MySQL driver
-psycopg2-binary>=2.9  # PostgreSQL driver
-
-# External data sources
-gspread>=6.0.0
-google-auth>=2.0.0
+pymysql>=1.0.0
+psycopg2-binary>=2.9
+clickhouse-connect>=0.7.0

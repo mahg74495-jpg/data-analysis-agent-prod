@@ -11,7 +11,7 @@ from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 
 from .state import session_manager, datasource_config_manager
-from data.connector import ExcelDataSource, CSVDataSource, SQLDataSource, GoogleSheetsDataSource, HTTPAPIDataSource
+from data.connector import ExcelDataSource, CSVDataSource, SQLDataSource, HTTPAPIDataSource
 
 log = logging.getLogger(__name__)
 
@@ -182,6 +182,22 @@ def preview_table(sid: str):
         return jsonify({"error": "missing table parameter"}), 400
     data = sess.data_source.get_preview_table(table_name, max_rows=100)
     return jsonify(data)
+
+
+@bp.get("/api/session/<sid>/datasource/health")
+def datasource_health(sid: str):
+    """Check if the current data source connection is still alive."""
+    sess = session_manager.get(sid)
+    if not sess or not sess.data_source:
+        return jsonify({"connected": False, "source_name": None})
+    try:
+        alive = sess.data_source.is_connected()
+        return jsonify({
+            "connected": alive,
+            "source_name": sess.data_source.name,
+        })
+    except Exception as exc:
+        return jsonify({"connected": False, "source_name": sess.data_source.name, "error": str(exc)})
 
 
 @bp.delete("/api/session/<sid>/datasource")

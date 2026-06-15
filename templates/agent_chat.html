@@ -131,16 +131,16 @@
         <p data-i18n-html="welcome.desc">连接数据库或上传 Excel，用自然语言提问，AI 会自动查询、分析并生成图表。<br>
            输入 <strong>/</strong> 可快速选择专属命令。</p>
         <div class="hint-chips">
-          <div class="hint-chip" data-action="fillHint">各品类的销售额是多少？</div>
-          <div class="hint-chip" data-action="fillHint">近12个月的销售趋势如何？</div>
-          <div class="hint-chip" data-action="fillHint">哪些客户贡献了最多收入？</div>
-          <div class="hint-chip" data-action="fillHint">/chart 各地区业绩对比柱状图</div>
-          <div class="hint-chip" data-action="fillHint">/decile 对销售额做十分位分析</div>
-          <div class="hint-chip" data-action="fillHint">/tree 用 C4.5 决策树预测客户流失</div>
-          <div class="hint-chip" data-action="fillHint">/kmeans 对客户做聚类分析，K=3</div>
+          <div class="hint-chip" data-action="fillHint">各工厂的良率对比如何？</div>
+          <div class="hint-chip" data-action="fillHint">近12个月OLED良率趋势</div>
+          <div class="hint-chip" data-action="fillHint">哪些设备良率最低？</div>
+          <div class="hint-chip" data-action="fillHint">/chart 各制程良率对比柱状图</div>
+          <div class="hint-chip" data-action="fillHint">/decile 对良率做十分位分析</div>
+          <div class="hint-chip" data-action="fillHint">/tree 用决策树分析影响良率的关键因子</div>
+          <div class="hint-chip" data-action="fillHint">/kmeans 对工厂产线做聚类分析</div>
           <div class="hint-chip" data-action="fillHint">/data 查看数据概况和分布</div>
-          <div class="hint-chip" data-action="fillHint">/ppt 生成销售业绩分析演示文稿</div>
-          <div class="hint-chip" data-action="fillHint">/dashboard 生成可交互销售分析看板</div>
+          <div class="hint-chip" data-action="fillHint">/ppt 生成良率分析演示文稿</div>
+          <div class="hint-chip" data-action="fillHint">/dashboard 生成良率监控看板</div>
         </div>
       </div>
     </div>
@@ -159,9 +159,9 @@
            chips scroll horizontally on the left; token pill sticks to the right. -->
       <div class="input-topbar">
         <div class="input-hints" id="input-hints">
-          <div class="input-hint-chip" data-action="fillHint">各品类的销售额是多少？</div>
-          <div class="input-hint-chip" data-action="fillHint">/chart 各地区业绩对比柱状图</div>
-          <div class="input-hint-chip" data-action="fillHint">/decile 销售额十分位分析</div>
+          <div class="input-hint-chip" data-action="fillHint">各工厂良率对比</div>
+          <div class="input-hint-chip" data-action="fillHint">/chart 各制程良率对比柱状图</div>
+          <div class="input-hint-chip" data-action="fillHint">/decile 良率十分位分析</div>
           <div class="input-hint-chip" data-action="fillHint">/data 数据概况</div>
           <div class="input-hint-chip" data-action="fillHint">/sql 直接执行 SQL</div>
           <div class="input-hint-chip" data-action="fillHint">/regression 回归分析</div>
@@ -241,8 +241,8 @@
         <span data-i18n="modal.db.conn_label">连接字符串</span>
         <span style="color:#ef4444"> *</span>
       </label>
-      <textarea id="db-conn" placeholder="示例：&#10;mysql+pymysql://user:pass@host:3306/dbname&#10;postgresql://user:pass@host:5432/dbname&#10;sqlite:///./data.db"></textarea>
-      <div class="f-hint" data-i18n="modal.db.hint">支持 MySQL、PostgreSQL、SQLite、SQL Server 等 SQLAlchemy 数据库</div>
+      <textarea id="db-conn" placeholder="示例：&#10;mysql+pymysql://user:pass@host:3306/dbname&#10;postgresql://user:pass@host:5432/dbname&#10;clickhousedb+connect://user:pass@host:8123/dbname&#10;sqlite:///./data.db"></textarea>
+      <div class="f-hint" data-i18n="modal.db.hint">支持 MySQL、PostgreSQL、SQLite、SQL Server、ClickHouse 等 SQLAlchemy 数据库</div>
     </div>
     <div class="ds-loading" id="db-loading" style="display:none">
       <div class="ds-spinner"></div>

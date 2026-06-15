@@ -2,7 +2,6 @@
 *.db
 *.csv
 uploads/
-data/
 
 # Python缓存
 __pycache__/

@@ -26,6 +26,14 @@ sys.path.insert(0, str(Path(__file__).parent))
 from log_setup import setup_logging
 setup_logging(level=20)  # logging.INFO
 
+# ── 离线部署：pyecharts 默认从 CDN 加载 echarts.min.js 和地图数据 ──
+# 将所有 assets.pyecharts.org 引用替换为本地 vendor 目录
+try:
+    from pyecharts.globals import CurrentConfig
+    CurrentConfig.ONLINE_HOST = '/static/vendor/'
+except ImportError:
+    pass
+
 # -------------------------------
 # 启动后台清理（仅本地；Vercel 短生命周期不需要）
 # -------------------------------

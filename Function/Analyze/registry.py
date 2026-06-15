@@ -25,6 +25,11 @@ _REGISTRY_MAP: Dict[str, str] = {
     "Time_Series_VAR":       "Time_Series_VAR",
     "Time_Series_Prophet":   "Time_Series_Prophet",
     "Time_Series_GRU":       "Time_Series_GRU",
+    "SPC_Analysis":          "SPC_Analysis",
+    "Cpk_Analysis":          "Cpk_Analysis",
+    "Yield_Analysis":        "Yield_Analysis",
+    "Virtual_Metrology":     "Virtual_Metrology",
+    "Predictive_Maintenance": "Predictive_Maintenance",
 }
 
 
