@@ -58,14 +58,6 @@
       _showDsStatus("db-status", sql.name || "SQL DB");
     }
 
-    const gs = cfgs.gsheets || {};
-    if (gs.has_creds_json) {
-      $("gsheets-creds").placeholder      = t('ds.conn_saved_ph');
-      $("gsheets-creds").dataset.hasSaved = "1";
-      if (gs.spreadsheet) $("gsheets-sheet").value = gs.spreadsheet;
-      if (gs.name)         $("gsheets-name").value = gs.name;
-      _showDsStatus("gsheets-status", gs.name || "Google Sheets");
-    }
 
     const api = cfgs.api || {};
     if (api.url) {
@@ -188,39 +180,6 @@
     window.sysMsg(t('sys.connected', { name: d.source_name }));
   }
 
-  async function connectGSheets() {
-    const creds = $("gsheets-creds").value.trim();
-    const sheet = $("gsheets-sheet").value.trim();
-    const name  = $("gsheets-name").value.trim();
-    const errEl = $("gsheets-err");
-    const hasSavedCreds = $("gsheets-creds").dataset.hasSaved === "1";
-    if (!creds && !hasSavedCreds) { errEl.textContent = t('gsheets_err.no_creds'); return; }
-    if (!sheet)                   { errEl.textContent = t('gsheets_err.no_sheet'); return; }
-    errEl.textContent = "";
-    const loadingEl = $("gsheets-loading");
-    const btn       = $("gsheets-btn");
-    const cancelBtn = $("gsheets-cancel-btn");
-    loadingEl.style.display = "";
-    btn.disabled       = true;
-    cancelBtn.disabled = true;
-    const r = await fetch(`/api/session/${state.SID}/connect-gsheets`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ creds_json: creds, spreadsheet: sheet, name }),
-    });
-    const d = await r.json();
-    loadingEl.style.display = "none";
-    btn.disabled       = false;
-    cancelBtn.disabled = false;
-    if (d.error) { errEl.textContent = d.error; return; }
-    state.schemaText = d.schema_preview || "";
-    $("gsheets-schema").textContent  = state.schemaText;
-    $("gsheets-schema").style.display = "block";
-    setSrc(d.source_name, 'src.hint.gsheets', true);
-    closeOverlay("ov-gsheets");
-    toast(t('toast.gsheets_ok'), "ok");
-    window.sysMsg(t('sys.connected', { name: d.source_name }));
-  }
-
   function toggleApiAuthValue() {
     const type = $("api-auth-type").value;
     $("api-auth-row").style.display = type === "none" ? "none" : "";
@@ -260,7 +219,7 @@
 
   window.BAA.datasource = {
     setSrc, loadDatasourceConfigs, disconnectSrc,
-    onXlFile, uploadXl, connectDB, connectGSheets, connectAPI, toggleApiAuthValue,
+    onXlFile, uploadXl, connectDB, connectAPI, toggleApiAuthValue,
   };
 
   // Backward-compat (used by sessions.js and language change handler).

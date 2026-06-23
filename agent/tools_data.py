@@ -44,21 +44,145 @@ class DataToolsMixin:
 
         return "\n".join(lines)
 
+    # ── 元数据路由 ───────────────────────────────────────────────────────────
+
+    def _tool_search_relevant_tables(self, keywords: str, top_k: int = 5) -> str:
+        """根据业务关键词搜索最相关的物理表/视图。"""
+        try:
+            from data.metadata_index import get_metadata_index
+            idx = get_metadata_index()
+            results = idx.search(keywords, top_k=min(top_k, 10))
+            return idx.format_search_result(results)
+        except Exception as e:
+            return f"[元数据检索失败] {e}"
+
+    def _tool_get_table_summary(self) -> str:
+        """返回所有表的全景摘要（仅表名+业务名+工序，不含列细节）。"""
+        try:
+            from data.metadata_index import get_metadata_index
+            idx = get_metadata_index()
+            return idx.get_summary()
+        except Exception as e:
+            return f"[全景摘要获取失败] {e}"
+
     # ── Basic data access ─────────────────────────────────────────────────────
 
-    def _tool_get_schema(self) -> str:
+    def _tool_get_schema(self, tables: list = None) -> str:
         if not self.data_source:
             return "No data source connected."
-        if not self._schema_cache:
-            self._schema_cache = self.data_source.get_schema()
-        return self._schema_cache
+        if tables:
+            # 指定表名：返回完整 schema
+            return self.data_source.get_schema(tables=tables)
+        # 无参数：返回摘要（仅表名列表）
+        return self.data_source.get_schema(summary_only=True)
 
     def _tool_query_data(self, sql: str) -> str:
         if not self.data_source:
             return "No data source. Please connect a database or upload an Excel file first."
+
+        # ── Query guardrails ──────────────────────────────────────────────
+        sql_stripped = sql.strip().upper()
+
+        # Rule 1: Block SELECT *
+        if sql_stripped.startswith("SELECT *") or sql_stripped.startswith("SELECT  *"):
+            return (
+                "ERROR: SELECT * is not allowed. Specify columns explicitly. "
+                "Example: SELECT glass_id, product_type, yield FROM array_production"
+            )
+
+        # Rule 2: Warn if no WHERE clause (for non-trivial tables)
+        has_where = "WHERE" in sql_stripped
+        has_limit = "LIMIT" in sql_stripped
+
+        if not has_where and not has_limit:
+            return (
+                "ERROR: Query must include a WHERE filter (time range / lot / batch) "
+                "or a LIMIT clause to prevent full table scans."
+            )
+
+        # Rule 3: Auto-append LIMIT if missing
+        if not has_limit:
+            sql = sql.rstrip(";") + " LIMIT 200"
+
         df, error = self.data_source.execute_query(sql)
         if error:
             return f"SQL Error: {error}"
+        return self.data_source.format_result(df)
+
+    # ── 聚合查询工具（替代明细查询） ───────────────────────────────────────
+
+    def _tool_get_column_distribution(self, table: str, column: str, where: str = "") -> str:
+        """获取列分布统计，不返回明细行。"""
+        if not self.data_source:
+            return "No data source connected."
+
+        where_clause = f" WHERE {where}" if where else ""
+
+        stats_sql = (
+            "SELECT COUNT(*) as total_rows, COUNT(" + column + ") as non_null, "
+            "COUNT(*) - COUNT(" + column + ") as null_count, "
+            "MIN(" + column + ") as min_val, MAX(" + column + ") as max_val, "
+            "AVG(" + column + ") as avg_val, STDDEV(" + column + ") as std_val "
+            'FROM "' + table + '"' + where_clause
+        )
+        df_stats, err = self.data_source.execute_query(stats_sql)
+        if err:
+            return f"Error computing distribution: {err}"
+
+        lines = [f"Column: {column}  (Table: {table})"]
+        if not df_stats.empty:
+            row = df_stats.iloc[0]
+            lines.append(f"  Total rows: {row['total_rows']}")
+            lines.append(f"  Non-null:   {row['non_null']}")
+            lines.append(f"  Null count: {row['null_count']}")
+            if row['min_val'] is not None:
+                lines.append(f"  Min: {row['min_val']}")
+                lines.append(f"  Max: {row['max_val']}")
+                lines.append(f"  Avg: {row['avg_val']}")
+                lines.append(f"  Std: {row['std_val']}")
+
+        top_sql = (
+            "SELECT " + column + " as value, COUNT(*) as freq "
+            'FROM "' + table + '"' + where_clause + " "
+            "WHERE " + column + " IS NOT NULL "
+            "GROUP BY " + column + " "
+            "ORDER BY freq DESC LIMIT 5"
+        )
+        df_top, _ = self.data_source.execute_query(top_sql)
+        if not df_top.empty:
+            lines.append("  Top 5 values:")
+            for _, r in df_top.iterrows():
+                pct = r['freq'] / df_stats.iloc[0]['total_rows'] * 100 if not df_stats.empty else 0
+                lines.append(f"    {r['value']}: {r['freq']} ({pct:.1f}%)")
+
+        return "\n".join(lines)
+
+    def _tool_get_aggregated_metrics(
+        self, table: str, group_by: str, metrics: str,
+        where: str = "", order_by: str = "", limit: int = 50
+    ) -> str:
+        """按分组聚合计算指标，返回汇总结果。"""
+        if not self.data_source:
+            return "No data source connected."
+
+        where_clause = f" WHERE {where}" if where else ""
+        order_clause = f" ORDER BY {order_by}" if order_by else ""
+        limit = min(max(1, limit), 200)
+
+        sql = (
+            "SELECT " + group_by + ", " + metrics + " "
+            'FROM "' + table + '"' + where_clause + " "
+            "GROUP BY " + group_by + " "
+            + order_clause + " "
+            "LIMIT " + str(limit)
+        )
+
+        df, err = self.data_source.execute_query(sql)
+        if err:
+            return f"Error computing aggregated metrics: {err}"
+        if df.empty:
+            return "No results."
+
         return self.data_source.format_result(df)
 
     def _tool_create_analysis_table(self, sql: str, table_name: str = "analysis_data") -> str:

@@ -10,7 +10,7 @@
     el.classList.add("open");
     // Side effects tied to specific overlays:
     if (id === "ov-settings" && window.BAA.models) window.BAA.models.loadBuiltinProviders();
-    if ((id === "ov-db" || id === "ov-gsheets" || id === "ov-api") && window.BAA.datasource) {
+    if ((id === "ov-db" || id === "ov-api") && window.BAA.datasource) {
       window.BAA.datasource.loadDatasourceConfigs();
     }
   }

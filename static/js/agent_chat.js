@@ -612,15 +612,6 @@ async function loadDatasourceConfigs() {
     _showDsStatus("db-status", sql.name || "SQL DB");
   }
 
-  const gs = cfgs.gsheets || {};
-  if (gs.has_creds_json) {
-    document.getElementById("gsheets-creds").placeholder = t('ds.conn_saved_ph');
-    document.getElementById("gsheets-creds").dataset.hasSaved = "1";
-    if (gs.spreadsheet) document.getElementById("gsheets-sheet").value = gs.spreadsheet;
-    if (gs.name) document.getElementById("gsheets-name").value = gs.name;
-    _showDsStatus("gsheets-status", gs.name || "Google Sheets");
-  }
-
   const api = cfgs.api || {};
   if (api.url) {
     document.getElementById("api-url").value = api.url;
@@ -766,39 +757,6 @@ async function connectDB() {
   setSrc(d.source_name, 'src.hint.db', true);
   closeOverlay("ov-db");
   toast(t('toast.db_ok'), "ok");
-  sysMsg(t('sys.connected', { name: d.source_name }));
-}
-
-async function connectGSheets() {
-  const creds = document.getElementById("gsheets-creds").value.trim();
-  const sheet = document.getElementById("gsheets-sheet").value.trim();
-  const name  = document.getElementById("gsheets-name").value.trim();
-  const errEl = document.getElementById("gsheets-err");
-  const hasSavedCreds = document.getElementById("gsheets-creds").dataset.hasSaved === "1";
-  if (!creds && !hasSavedCreds) { errEl.textContent = t('gsheets_err.no_creds'); return; }
-  if (!sheet) { errEl.textContent = t('gsheets_err.no_sheet'); return; }
-  errEl.textContent = "";
-  const loadingEl = document.getElementById("gsheets-loading");
-  const btn       = document.getElementById("gsheets-btn");
-  const cancelBtn = document.getElementById("gsheets-cancel-btn");
-  loadingEl.style.display = "";
-  btn.disabled = true;
-  cancelBtn.disabled = true;
-  const r = await fetch(`/api/session/${SID}/connect-gsheets`, {
-    method: "POST", headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ creds_json: creds, spreadsheet: sheet, name })
-  });
-  const d = await r.json();
-  loadingEl.style.display = "none";
-  btn.disabled = false;
-  cancelBtn.disabled = false;
-  if (d.error) { errEl.textContent = d.error; return; }
-  schemaText = d.schema_preview || "";
-  document.getElementById("gsheets-schema").textContent = schemaText;
-  document.getElementById("gsheets-schema").style.display = "block";
-  setSrc(d.source_name, 'src.hint.gsheets', true);
-  closeOverlay("ov-gsheets");
-  toast(t('toast.gsheets_ok'), "ok");
   sysMsg(t('sys.connected', { name: d.source_name }));
 }
 
@@ -1408,7 +1366,7 @@ function scrollBottom() { const m = document.getElementById("messages"); m.scrol
 function openOverlay(id) {
   document.getElementById(id).classList.add("open");
   if (id === "ov-settings") loadBuiltinProviders();
-  if (id === "ov-db" || id === "ov-gsheets" || id === "ov-api") loadDatasourceConfigs();
+  if (id === "ov-db" || id === "ov-api") loadDatasourceConfigs();
 }
 function closeOverlay(id) { document.getElementById(id).classList.remove("open"); }
 
@@ -1535,54 +1493,6 @@ async function deleteSavedSession(filename, name) {
   if (d.error) { toast(d.error, "err"); return; }
   toast(t('toast.deleted', { name }));
   await loadSavedList();
-}
-
-// ── System update ─────────────────────────────────────────────────
-async function runUpdate() {
-  const btn     = document.getElementById("update-btn");
-  const stateEl = document.getElementById("update-state");
-  const outEl   = document.getElementById("update-output");
-  const hintEl  = document.getElementById("update-restart-hint");
-
-  btn.disabled = true;
-  outEl.style.display = "none";
-  outEl.textContent   = "";
-  hintEl.style.display = "none";
-  stateEl.className   = "update-state update-loading";
-  stateEl.innerHTML   = `<span class="update-spinner"></span><span class="update-state-text">${t('update.loading')}</span>`;
-
-  try {
-    const r = await fetch("/api/system/update", { method: "POST", signal: AbortSignal.timeout(120000) });
-    const d = await r.json();
-
-    outEl.textContent   = d.output || t('update.no_output');
-    outEl.style.display = "block";
-
-    if (d.ok && d.already_up_to_date) {
-      stateEl.className = "update-state update-ok";
-      stateEl.innerHTML = `<span class="update-state-icon">✅</span><span class="update-state-text">${t('update.ok_latest')}</span>`;
-    } else if (d.ok) {
-      stateEl.className = "update-state update-ok";
-      stateEl.innerHTML = `<span class="update-state-icon">✅</span><span class="update-state-text">${t('update.ok')}</span>`;
-      hintEl.style.display = "block";
-    } else {
-      stateEl.className = "update-state update-err";
-      stateEl.innerHTML = `<span class="update-state-icon">❌</span><span class="update-state-text">${t('update.fail')}</span>`;
-    }
-  } catch (e) {
-    // 更新过程中服务器可能因文件覆盖而重启，导致连接中断（Failed to fetch）
-    // 这种情况下更新实际已成功，提示用户刷新页面即可
-    if (e.name === "TypeError" || e.name === "AbortError") {
-      stateEl.className = "update-state update-ok";
-      stateEl.innerHTML = `<span class="update-state-icon">✅</span><span class="update-state-text">${t('update.ok_restart')}</span>`;
-      hintEl.style.display = "block";
-    } else {
-      stateEl.className = "update-state update-err";
-      stateEl.innerHTML = `<span class="update-state-icon">❌</span><span class="update-state-text">${t('update.req_fail')}${esc(String(e))}</span>`;
-    }
-  } finally {
-    btn.disabled = false;
-  }
 }
 
 // ── Markdown (lightweight) ─────────────────────────────────────────

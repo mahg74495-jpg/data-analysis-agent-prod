@@ -1,4 +1,5 @@
 """Blueprint: LLM model management — /api/models/*"""
+from typing import Optional
 from flask import Blueprint, request, jsonify
 from .state import config_manager, session_manager
 
@@ -71,7 +72,8 @@ def add_model():
     return jsonify({"error": msg}), 400
 
 
-def _to_int(v) -> int | None:
+
+def _to_int(v) -> Optional[int]:
     try:
         return int(v) if v not in (None, "", "0") else None
     except (TypeError, ValueError):

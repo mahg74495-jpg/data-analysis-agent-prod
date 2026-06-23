@@ -41,10 +41,17 @@ def _build_analyze_guide() -> str:
 
 
 def _build_chart_ids() -> str:
-    """Return a comma-separated list of all chart_ids from the embedded selector registry."""
+    """Return a comma-separated list of unique chart_ids from the registry."""
     try:
         from LLM.chart_selector import _CHARTS
-        return ", ".join(c["chart_id"] for c in _CHARTS)
+        seen = set()
+        unique = []
+        for c in _CHARTS:
+            cid = c["chart_id"]
+            if cid not in seen:
+                seen.add(cid)
+                unique.append(cid)
+        return ", ".join(unique)
     except Exception:
         return (
             "Bar_Chart, Line_Chart, Pie_Chart, Scatter_Plot, Area_Chart, "
@@ -74,7 +81,14 @@ _SYSTEM_PROMPT_TEMPLATE = """You are a professional business analyst assistant e
 Your job: help users understand and derive insights from their business data through conversation.
 
 Behaviour rules:
-1. Always call get_schema before writing SQL if you don't already know the table structure.
+1. TABLE ACCESS PROTOCOL — TWO-PHASE ROUTING (MANDATORY):
+   Phase 1 — FIRST call search_relevant_tables(keywords) to identify the 3-5 most
+   relevant tables for the user's business question. NEVER skip this step.
+   Phase 2 — THEN call get_schema(tables=[...]) with the specific table names from
+   Phase 1 to get full column details. NEVER call get_schema() without arguments
+   on a large database — that would dump ALL 50+ tables and exceed token limits.
+   If you don't know what keywords to search, ask the user to clarify their
+   business scenario (e.g. "Array 段点灯不良率" or "Cell 成盒良率").
 2. Use exact column and table names from the schema — never guess.
 3. After showing raw data, add a concise business insight (1-3 sentences).
 4. Proactively suggest a relevant chart after answering data questions.

@@ -37,13 +37,59 @@ AGENT_TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "search_relevant_tables",
+            "description": (
+                "根据业务关键词搜索最相关的物理表或业务视图。\n"
+                "CRITICAL: 在调用 get_schema 之前，必须先调用此工具确定目标表。\n"
+                "永远不要直接对 50+ 张表调用 get_schema。\n"
+                "用法示例：search_relevant_tables(keywords='Array 点灯不良率', top_k=5)"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "keywords": {
+                        "type": "string",
+                        "description": (
+                            "业务关键词，如 'Array 段点灯不良率'、'Cell 成盒良率'、"
+                            "'Module 老化测试亮度均匀性'。支持多关键词空格分隔。"
+                        ),
+                    },
+                    "top_k": {
+                        "type": "integer",
+                        "description": "返回最相关的表数量（默认 5，最大 10）",
+                        "default": 5,
+                    },
+                },
+                "required": ["keywords"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_schema",
             "description": (
-                "Get the full schema of the connected data source — tables, columns, "
-                "types, and row counts. Always call this first when the user asks "
-                "about data you haven't seen yet."
+                "Get the schema of specific tables in the connected data source.\n"
+                "IMPORTANT: You MUST call search_relevant_tables FIRST to identify "
+                "which tables are relevant, then pass the table names here.\n"
+                "When called without arguments, returns a summary (table names only, "
+                "no column details) — use this only when you need a quick overview.\n"
+                "NEVER call get_schema() without first narrowing down via search_relevant_tables."
             ),
-            "parameters": {"type": "object", "properties": {}},
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "tables": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": (
+                            "Optional list of specific table names to inspect. "
+                            "When provided, returns full schema for only these tables. "
+                            "When omitted, returns a summary with table names only."
+                        ),
+                    },
+                },
+            },
         },
     },
     {
@@ -81,17 +127,113 @@ AGENT_TOOLS = [
             },
         },
     },
+
+    {
+        "type": "function",
+        "function": {
+            "name": "get_column_distribution",
+            "description": (
+                "Get statistical distribution of a column without fetching detail rows.\n"
+                "Returns: count, min, max, avg, std, null_count, and top 5 most frequent values.\n"
+                "Use this INSTEAD of query_data when you need to understand a column's "
+                "data shape, value range, or frequent categories.\n"
+                "This is much faster and safer than SELECT on large tables."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "table": {
+                        "type": "string",
+                        "description": "Table name to analyze.",
+                    },
+                    "column": {
+                        "type": "string",
+                        "description": "Column name to get distribution for.",
+                    },
+                    "where": {
+                        "type": "string",
+                        "description": "Optional WHERE clause (without the WHERE keyword).",
+                    },
+                },
+                "required": ["table", "column"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_aggregated_metrics",
+            "description": (
+                "Get aggregated metrics grouped by a category column.\n"
+                "Returns grouped summary statistics without fetching detail rows.\n"
+                "Use this when you need to compare metrics across groups "
+                "(e.g. yield by equipment, defect count by product type).\n"
+                "This is the PREFERRED way to explore data — much faster than query_data."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "table": {
+                        "type": "string",
+                        "description": "Table name to analyze.",
+                    },
+                    "group_by": {
+                        "type": "string",
+                        "description": "Column name to group by (e.g. equipment_id, product_type).",
+                    },
+                    "metrics": {
+                        "type": "string",
+                        "description": (
+                            "Comma-separated aggregate expressions, "
+                            "e.g. 'COUNT(*) as cnt, AVG(yield) as avg_yield, SUM(defects) as total_defects'"
+                        ),
+                    },
+                    "where": {
+                        "type": "string",
+                        "description": "Optional WHERE clause (without the WHERE keyword).",
+                    },
+                    "order_by": {
+                        "type": "string",
+                        "description": "Optional ORDER BY clause (e.g. 'avg_yield DESC').",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max rows to return (default 50).",
+                        "default": 50,
+                    },
+                },
+                "required": ["table", "group_by", "metrics"],
+            },
+        },
+    },
+
     {
         "type": "function",
         "function": {
             "name": "query_data",
-            "description": "Execute a SQL SELECT query and return the results as a table.",
+            "description": (
+                "Execute a SQL SELECT query and return results.\n"
+                "CRITICAL RULES — violation will cause the query to be rejected:\n"
+                "1. NEVER use SELECT * — always specify column names explicitly.\n"
+                "2. ALWAYS include a WHERE clause with time range (month/date) or "
+                "lot/batch filter for large tables.\n"
+                "3. ALWAYS add LIMIT 200 for exploratory queries.\n"
+                "4. Use aggregate functions (COUNT, AVG, SUM, GROUP BY) instead of "
+                "fetching raw detail rows.\n"
+                "5. For large tables (millions+ rows), filter by partition key "
+                "(month/lot_id) to limit scan range.\n"
+                "6. If you need row-level detail, first use get_column_distribution "
+                "or get_aggregated_metrics to understand the data shape."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
                     "sql": {
                         "type": "string",
-                        "description": "A valid SQL SELECT statement using actual column/table names from the schema.",
+                        "description": (
+                            "A valid SQL SELECT statement. Must specify columns, "
+                            "include WHERE filter, and add LIMIT."
+                        ),
                     }
                 },
                 "required": ["sql"],

@@ -66,7 +66,6 @@
         <div class="sb-dropdown-menu" role="menu">
           <button class="sb-dropdown-item" data-action="openOverlay:ov-excel"   data-i18n="sidebar.upload">📂 上传 Excel / CSV</button>
           <button class="sb-dropdown-item" data-action="openOverlay:ov-db"      data-i18n="sidebar.connect_db">🗄️ 连接 SQL 数据库</button>
-          <button class="sb-dropdown-item" data-action="openOverlay:ov-gsheets" data-i18n="sidebar.connect_gsheets">📊 连接 Google Sheets</button>
           <button class="sb-dropdown-item" data-action="openOverlay:ov-api"     data-i18n="sidebar.connect_api">🔗 连接自定义 API</button>
           <hr class="sb-dropdown-sep" id="sb-disc-sep" hidden>
           <button class="sb-dropdown-item sb-dropdown-item--danger"
@@ -106,8 +105,6 @@
         <button class="sb-iconbtn" id="lang-toggle"  data-action="toggleLang">EN</button>
         <button class="sb-iconbtn sb-iconbtn-wide" data-action="openInstruction"
                 data-i18n-title="sidebar.instruction" title="说明文档">📖 说明文档</button>
-        <button class="sb-iconbtn sb-iconbtn-wide" data-action="openOverlay:ov-update"
-                data-i18n="sidebar.check_update">🔄 检查更新</button>
       </div>
     </footer>
   </aside>
@@ -257,42 +254,6 @@
   </div>
 </div>
 
-<!-- Google Sheets connect -->
-<div class="overlay" id="ov-gsheets">
-  <div class="modal">
-    <div class="modal-title" data-i18n="modal.gsheets.title">📊 连接 Google Sheets</div>
-    <div class="msg-ok" id="gsheets-status" style="display:none"></div>
-    <div class="f-row">
-      <label data-i18n="modal.gsheets.name_label">显示名称（可选）</label>
-      <input type="text" id="gsheets-name" data-i18n-ph="modal.gsheets.name_ph" placeholder="例如：销售数据表">
-    </div>
-    <div class="f-row">
-      <label>
-        <span data-i18n="modal.gsheets.sheet_label">电子表格 URL 或 ID</span>
-        <span style="color:#ef4444"> *</span>
-      </label>
-      <input type="text" id="gsheets-sheet" data-i18n-ph="modal.gsheets.sheet_ph" placeholder="https://docs.google.com/spreadsheets/d/... 或 spreadsheet ID">
-    </div>
-    <div class="f-row">
-      <label>
-        <span data-i18n="modal.gsheets.creds_label">服务账号 JSON</span>
-        <span style="color:#ef4444"> *</span>
-      </label>
-      <textarea id="gsheets-creds" rows="6" data-i18n-ph="modal.gsheets.creds_ph" placeholder='粘贴服务账号 JSON 内容，例如：&#10;{"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}'></textarea>
-      <div class="f-hint" data-i18n="modal.gsheets.hint">需要 Google Service Account 凭证，并已将服务账号邮件加为表格协作者</div>
-    </div>
-    <div class="ds-loading" id="gsheets-loading" style="display:none">
-      <div class="ds-spinner"></div>
-      <span data-i18n="ds.connecting">正在连接并解析数据…</span>
-    </div>
-    <pre class="schema-box" id="gsheets-schema" style="display:none"></pre>
-    <div class="msg-err" id="gsheets-err"></div>
-    <div class="modal-footer">
-      <button class="btn-sm btn-sm-ghost"   id="gsheets-cancel-btn" data-action="closeOverlay:ov-gsheets" data-i18n="modal.cancel">取消</button>
-      <button class="btn-sm btn-sm-primary" id="gsheets-btn"        data-action="connectGSheets"           data-i18n="modal.connect">连接</button>
-    </div>
-  </div>
-</div>
 
 <!-- Custom REST API connect -->
 <div class="overlay" id="ov-api">
@@ -487,30 +448,6 @@
 
     <div class="modal-footer">
       <button class="btn-sm btn-sm-ghost" data-action="closeOverlay:ov-mcp">关闭</button>
-    </div>
-  </div>
-</div>
-
-<!-- Update modal -->
-<div class="overlay" id="ov-update">
-  <div class="modal" style="width:540px">
-    <div class="modal-title" data-i18n="modal.update.title">🔄 检查更新</div>
-    <div class="update-repo-hint">
-      来源：<a href="https://github.com/Zafer-Liu/Data-Analysis-Agent" target="_blank" rel="noopener">github.com/Zafer-Liu/Data-Analysis-Agent</a>
-      &nbsp;·&nbsp; 方式：下载 <code>main.zip</code> 并覆盖代码文件（用户数据不受影响）
-    </div>
-    <div id="update-state" class="update-state update-idle">
-      <span class="update-state-icon">💡</span>
-      <span class="update-state-text" data-i18n="modal.update.idle">点击"拉取更新"从 GitHub 获取最新代码</span>
-    </div>
-    <pre class="update-output" id="update-output" style="display:none"></pre>
-    <div class="update-restart-hint" id="update-restart-hint" style="display:none"
-         data-i18n="modal.update.restart">
-      ⚠️ 代码已更新，请刷新页面使改动生效。
-    </div>
-    <div class="modal-footer">
-      <button class="btn-sm btn-sm-ghost"   data-action="closeOverlay:ov-update" data-i18n="modal.close">关闭</button>
-      <button class="btn-sm btn-sm-primary" id="update-btn" data-action="runUpdate" data-i18n="modal.update.btn">⬇ 拉取更新</button>
     </div>
   </div>
 </div>
@@ -748,7 +685,6 @@
 <script src="{{ url_for('static', filename='js/modules/preview.js') }}"></script>
 <script src="{{ url_for('static', filename='js/modules/chat_stream.js') }}"></script>
 <script src="{{ url_for('static', filename='js/modules/sessions.js') }}"></script>
-<script src="{{ url_for('static', filename='js/modules/update.js') }}"></script>
 
 <!-- ── External panels (decorate window.openOverlay; must come AFTER overlay.js) -->
 <script src="{{ url_for('static', filename='js/mcp_settings.js') }}"></script>

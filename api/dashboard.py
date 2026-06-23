@@ -91,7 +91,7 @@ def _render_kpi_widget(data_source, spec: dict) -> dict:
         return {"kpi_value": "—", "kpi_sub": "", "kpi_trend": None, "error": str(exc)}
 
 
-def _render_widget(data_source, chart_store, color_scheme: str, spec: dict) -> tuple[str | None, str | None]:
+def _render_widget(data_source, chart_store, color_scheme: str, spec: dict) -> tuple:
     """Execute SQL and generate chart HTML. Returns (chart_id, error)."""
     sql = spec.get("sql", "")
     if not sql or not data_source:

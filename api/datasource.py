@@ -207,46 +207,6 @@ def disconnect_source(sid: str):
     return jsonify({"ok": True})
 
 
-@bp.post("/api/session/<sid>/connect-gsheets")
-def connect_gsheets(sid: str):
-    import json as _json
-    d = request.json or {}
-    creds_raw = d.get("creds_json", "")
-    spreadsheet = (d.get("spreadsheet") or "").strip()
-    display_name = (d.get("name") or "").strip()
-
-    # Use saved creds if field left blank
-    if not creds_raw:
-        saved = datasource_config_manager.get("gsheets")
-        creds_raw = (saved or {}).get("creds_json", "")
-    if not spreadsheet:
-        saved = datasource_config_manager.get("gsheets")
-        spreadsheet = (saved or {}).get("spreadsheet", "")
-
-    if not creds_raw:
-        return jsonify({"error": "服务账号 JSON 不能为空"}), 400
-    if not spreadsheet:
-        return jsonify({"error": "电子表格 URL 或 ID 不能为空"}), 400
-
-    try:
-        creds_dict = _json.loads(creds_raw) if isinstance(creds_raw, str) else creds_raw
-    except Exception:
-        return jsonify({"error": "服务账号 JSON 格式无效"}), 400
-
-    try:
-        source = GoogleSheetsDataSource(creds_dict, spreadsheet, display_name)
-        sess = session_manager.get_or_create(sid)
-        sess.data_source = source
-        datasource_config_manager.save("gsheets", {
-            "creds_json": creds_raw if isinstance(creds_raw, str) else _json.dumps(creds_raw),
-            "spreadsheet": spreadsheet, "name": display_name
-        })
-        return jsonify({"ok": True, "source_name": source.name,
-                        "schema_preview": source.get_schema()})
-    except Exception as exc:
-        log.error("[connect-gsheets] FAILED: %s\n%s", exc, traceback.format_exc())
-        return jsonify({"error": _friendly_conn_error(exc, "Google Sheets")}), 400
-
 
 @bp.post("/api/session/<sid>/connect-api")
 def connect_api(sid: str):

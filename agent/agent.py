@@ -609,10 +609,14 @@ class BusinessAgent(DataToolsMixin, ExportToolsMixin):
                         continue
                     display_map = {
                         "query_knowledge":       f"查询知识库: {args.get('question', '')}",
+                        "search_relevant_tables": f"检索相关表: {args.get('keywords', '')}",
+                        "get_table_summary":     "读取数据表全景",
                         "get_schema":            "读取数据结构",
                         "create_analysis_table": f"提取字段 → {args.get('table_name', 'analysis_data')}",
                         "select_chart":          f"查询图表注册表: {args.get('user_intent', '?')[:40]}",
                         "query_data":            f"执行查询: {args.get('sql', '')}",
+                        "get_column_distribution": f"列分布统计: {args.get('table', '?')}.{args.get('column', '?')}",
+                        "get_aggregated_metrics":  f"聚合指标: {args.get('table', '?')} BY {args.get('group_by', '?')}",
                         "run_analysis":          f"运行分析: {args.get('analysis_name', '?')} · 目标列: {args.get('target_column', '?')}",
                         "generate_chart":        f"生成 {args.get('chart_type', '?')} 图表",
                         "profile_data":          f"分析数据概况: {args.get('table_name', '自动检测')}",
@@ -651,8 +655,17 @@ class BusinessAgent(DataToolsMixin, ExportToolsMixin):
                             tool_result = self._tool_query_knowledge(
                                 question=args.get("question", "")
                             )
+                        elif name == "search_relevant_tables":
+                            tool_result = self._tool_search_relevant_tables(
+                                keywords=args.get("keywords", ""),
+                                top_k=args.get("top_k", 5),
+                            )
+                        elif name == "get_table_summary":
+                            tool_result = self._tool_get_table_summary()
                         elif name == "get_schema":
-                            tool_result = self._tool_get_schema()
+                            tool_result = self._tool_get_schema(
+                                tables=args.get("tables", None)
+                            )
                         elif name == "create_analysis_table":
                             tool_result = self._tool_create_analysis_table(
                                 sql=args.get("sql", ""),
@@ -660,6 +673,21 @@ class BusinessAgent(DataToolsMixin, ExportToolsMixin):
                             )
                         elif name == "query_data":
                             tool_result = self._tool_query_data(args.get("sql", ""))
+                        elif name == "get_column_distribution":
+                            tool_result = self._tool_get_column_distribution(
+                                table=args.get("table", ""),
+                                column=args.get("column", ""),
+                                where=args.get("where", ""),
+                            )
+                        elif name == "get_aggregated_metrics":
+                            tool_result = self._tool_get_aggregated_metrics(
+                                table=args.get("table", ""),
+                                group_by=args.get("group_by", ""),
+                                metrics=args.get("metrics", ""),
+                                where=args.get("where", ""),
+                                order_by=args.get("order_by", ""),
+                                limit=args.get("limit", 50),
+                            )
                         elif name == "run_analysis":
                             tool_result = self._tool_run_analysis(
                                 analysis_name=args.get("analysis_name", ""),

@@ -47,9 +47,11 @@ log = logging.getLogger(__name__)
 # artifacts with their own UI delete buttons, and losing them silently would
 # be a worse failure than disk growth.
 DEFAULT_RULES: Tuple[Tuple[str, int, str], ...] = (
-    ("uploads",          int(os.environ.get("BAA_CLEANUP_UPLOAD_DAYS", "30")), "uploads"),
-    ("outputs/charts",   int(os.environ.get("BAA_CLEANUP_OUTPUT_DAYS", "90")), "outputs/charts"),
-    ("outputs/exports",  int(os.environ.get("BAA_CLEANUP_OUTPUT_DAYS", "90")), "outputs/exports"),
+    ("uploads",          int(os.environ.get("BAA_CLEANUP_UPLOAD_DAYS", "7")),  "uploads"),
+    ("outputs/charts",   int(os.environ.get("BAA_CLEANUP_OUTPUT_DAYS", "7")),  "outputs/charts"),
+    ("outputs/exports",  int(os.environ.get("BAA_CLEANUP_OUTPUT_DAYS", "7")),  "outputs/exports"),
+    ("outputs/Log",      int(os.environ.get("BAA_CLEANUP_LOG_DAYS", "7")),     "outputs/Log"),
+    ("cache",            int(os.environ.get("BAA_CLEANUP_CACHE_DAYS", "1")),   "cache"),
 )
 
 

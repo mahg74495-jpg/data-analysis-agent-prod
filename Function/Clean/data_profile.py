@@ -113,7 +113,7 @@ def profile(
                 height=height,
                 margin=dict(l=40, r=20, t=60, b=40),
             )
-            charts.append(fig.to_html(full_html=True, include_plotlyjs="cdn"))
+            charts.append(fig.to_html(full_html=True, include_plotlyjs=False))
         except Exception:
             pass  # chart is optional; don't break profiling
 

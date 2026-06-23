@@ -31,7 +31,6 @@
     // Data source modals
     uploadXl:          () => window.BAA.datasource.uploadXl(),
     connectDB:         () => window.BAA.datasource.connectDB(),
-    connectGSheets:    () => window.BAA.datasource.connectGSheets(),
     connectAPI:        () => window.BAA.datasource.connectAPI(),
 
     // Settings — model providers
@@ -54,8 +53,7 @@
     loadSession:   (el) => window.BAA.sessions.loadSavedSession(el.dataset.filename, el.dataset.name),
     deleteSession: (el) => window.BAA.sessions.deleteSavedSession(el.dataset.filename, el.dataset.name),
 
-    // Update modal
-    runUpdate:   () => window.BAA.update.runUpdate(),
+    // (update modal removed for offline deployment)
 
     // MCP server form
     toggleMcpAddForm: () => window.toggleMcpAddForm(),

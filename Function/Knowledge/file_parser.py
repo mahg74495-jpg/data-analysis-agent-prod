@@ -15,7 +15,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, Optional
 
 log = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ def _detect_template(columns: list[str]) -> tuple[str, int]:
 def _map_columns(df: pd.DataFrame, header_map: dict[str, set]) -> list[str]:
     """Return a column-name mapping: {canonical_field: actual_df_column}."""
     norm_to_actual = {c.strip().lower(): c for c in df.columns}
-    mapping: dict[str, str | None] = {}
+    mapping: Dict[str, Optional[str]] = {}
     for field, aliases in header_map.items():
         hit = next((norm_to_actual[a] for a in aliases if a in norm_to_actual), None)
         mapping[field] = hit
