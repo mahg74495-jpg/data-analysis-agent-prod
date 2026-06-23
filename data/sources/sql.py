@@ -59,11 +59,58 @@ class SQLDataSource(DataSource):
         except Exception:
             return False
 
-    def get_schema(self) -> str:
+    def get_schema(self, tables: Optional[List[str]] = None, summary_only: bool = False) -> str:
         parts: List[str] = []
+        # ── 指定表名模式：只返回这几张表的完整 schema ────────────────
+        if tables:
+            for table in tables:
+                try:
+                    if self._is_clickhouse:
+                        from sqlalchemy import text as sa_text
+                        with self._engine.connect() as conn:
+                            col_rows = conn.execute(
+                                sa_text("SELECT name, type FROM system.columns WHERE table = :t"),
+                                {"t": table}
+                            ).fetchall()
+                        col_lines = [f"  {r[0]}  {r[1]}" for r in col_rows]
+                    else:
+                        cols = self._inspect.get_columns(table)
+                        col_lines = [f"  {c['name']}  {c['type']}" for c in cols]
+                    parts.append(f"Table: {table}\n" + "\n".join(col_lines))
+                except Exception:
+                    parts.append(f"Table: {table}  (schema unavailable)")
+            for t in sorted(self._cache_tables):
+                if self._cache_conn is None:
+                    continue
+                rows = self._cache_conn.execute(
+                    f'SELECT COUNT(*) FROM "{t}"'
+                ).fetchone()[0]
+                parts.append(_table_schema_str(self._cache_conn, t, rows))
+            return "\n\n".join(parts) if parts else "No tables found."
+
+        # ── summary_only 模式：只返回表名列表 ────────────────────────
+        if summary_only:
+            try:
+                raw_tables = self._inspect.get_table_names()
+                if self._is_clickhouse:
+                    tables = [t for t in raw_tables
+                              if not t.startswith("system.")
+                              and not t.startswith(".inner")
+                              and "." not in t]
+                else:
+                    tables = raw_tables
+                lines = ["## 数据表列表（摘要）\n"]
+                for t in tables[:50]:
+                    lines.append(f"- {t}")
+                for t in sorted(self._cache_tables):
+                    lines.append(f"- {t} (分析表)")
+                return "\n".join(lines) if lines else "No tables found."
+            except Exception:
+                return "No tables found."
+
+        # ── 默认模式：返回所有表的完整 schema ────────────────────────
         try:
             raw_tables = self._inspect.get_table_names()
-            # ClickHouse: filter out system/internal tables
             if self._is_clickhouse:
                 tables = [t for t in raw_tables
                           if not t.startswith("system.")
@@ -77,7 +124,6 @@ class SQLDataSource(DataSource):
         for table in tables:
             try:
                 if self._is_clickhouse:
-                    # ClickHouse: query system.columns directly (SQLAlchemy inspect incompatible)
                     from sqlalchemy import text as sa_text
                     with self._engine.connect() as conn:
                         col_rows = conn.execute(
@@ -92,6 +138,8 @@ class SQLDataSource(DataSource):
             except Exception:
                 parts.append(f"Table: {table}  (schema unavailable)")
         for t in sorted(self._cache_tables):
+            if self._cache_conn is None:
+                continue
             rows = self._cache_conn.execute(
                 f'SELECT COUNT(*) FROM "{t}"'
             ).fetchone()[0]

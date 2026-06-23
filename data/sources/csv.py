@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """CSVDataSource — single-file .csv loader (DuckDB read_csv_auto with pandas fallback)."""
 import logging
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import pandas as pd
 
@@ -56,7 +56,7 @@ class CSVDataSource(DataSource):
         except Exception:
             return False
 
-    def get_schema(self) -> str:
+    def get_schema(self, tables: Optional[List[str]] = None, summary_only: bool = False) -> str:
         # Include every table (raw + analysis tables created at runtime).
         parts: List[str] = []
         for table in (self.list_tables() or [self._table]):

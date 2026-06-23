@@ -5,7 +5,7 @@
 All concrete sources implement this contract. Frontend code (api/, agent/)
 never imports a concrete class directly — it always programs to this base.
 """
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import pandas as pd
 
@@ -15,7 +15,7 @@ MAX_DISPLAY_ROWS = 200   # max rows shown to the LLM in query results
 class DataSource:
     name: str = ""
 
-    def get_schema(self) -> str:
+    def get_schema(self, tables: Optional[List[str]] = None, summary_only: bool = False) -> str:
         raise NotImplementedError
 
     def execute_query(self, sql: str) -> Tuple[pd.DataFrame, str]:

@@ -48,13 +48,53 @@ class DataToolsMixin:
 
     def _tool_search_relevant_tables(self, keywords: str, top_k: int = 5) -> str:
         """根据业务关键词搜索最相关的物理表/视图。"""
+        # 优先尝试元数据索引
         try:
             from data.metadata_index import get_metadata_index
             idx = get_metadata_index()
             results = idx.search(keywords, top_k=min(top_k, 10))
-            return idx.format_search_result(results)
+            if results:
+                return idx.format_search_result(results)
         except Exception as e:
-            return f"[元数据检索失败] {e}"
+            pass  # 元数据索引不可用，降级到数据源直接检索
+
+        # 降级：直接从数据源的表名/列名中模糊匹配
+        if not self.data_source:
+            return "未连接数据源。"
+        try:
+            tables = self._discover_all_tables()
+            if not tables:
+                return "数据源中未找到任何表。"
+            kw = keywords.lower()
+            matched = []
+            for t in tables:
+                if kw in t.lower():
+                    # 获取该表的 schema
+                    schema = self.data_source.get_schema(tables=[t])
+                    matched.append(schema)
+                    if len(matched) >= top_k:
+                        break
+            if matched:
+                return "## 从数据源直接匹配到的表\n\n" + "\n\n".join(matched)
+            # 如果表名不匹配，尝试搜索列名
+            for t in tables[:top_k]:
+                try:
+                    schema_text = self.data_source.get_schema(tables=[t])
+                    if kw in schema_text.lower():
+                        matched.append(schema_text)
+                except Exception:
+                    pass
+            if matched:
+                return "## 从数据源列名匹配到的表\n\n" + "\n\n".join(matched)
+            # 完全没匹配到：返回所有表名让用户选择
+            summary = self.data_source.get_schema(summary_only=True)
+            return (
+                f"未找到包含「{keywords}」的表。数据源中的表如下：\n\n"
+                f"{summary}\n\n"
+                "请确认关键词是否正确，或从上述表名中选择。"
+            )
+        except Exception as e:
+            return f"[检索失败] {e}"
 
     def _tool_get_table_summary(self) -> str:
         """返回所有表的全景摘要（仅表名+业务名+工序，不含列细节）。"""
