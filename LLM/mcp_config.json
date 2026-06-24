@@ -1,0 +1,18 @@
+{
+  "servers": {
+    "glass-analyzer": {
+      "server_id": "glass-analyzer",
+      "label": "玻璃四站点差异分析",
+      "transport": "stdio",
+      "enabled": true,
+      "description": "玻璃性能测试四站点差异分析工具 - 导入数据、计算差异、生成报告",
+      "command": ".venv/bin/python",
+      "args": [
+        "mcp_servers/glass_analyzer/mcp_server.py"
+      ],
+      "env": {},
+      "url": "",
+      "headers": {}
+    }
+  }
+}

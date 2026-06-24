@@ -1,0 +1,9 @@
+# 玻璃四站点差异分析 MCP Server 依赖
+# 注意：这些依赖通常已包含在 DAA 主项目的 requirements.txt 中
+# 此文件仅用于独立部署参考
+
+pandas>=1.5.0
+numpy>=1.24.0
+matplotlib>=3.6.0
+seaborn>=0.12.0
+scipy>=1.10.0

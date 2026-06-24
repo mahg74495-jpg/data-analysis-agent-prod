@@ -31,6 +31,10 @@ outputs/Log/
 outputs/
 analysis_output_10m/
 
+# MCP服务器 - 玻璃分析数据（本地生成，不提交）
+mcp_servers/glass_analyzer/data/
+mcp_servers/glass_analyzer/output/
+
 # 分析缓存
 data/cache/
 
